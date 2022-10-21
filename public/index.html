@@ -6,10 +6,10 @@
 
     socket.on('connect', function() {
       console.log('Connected');
+    });
 
-      socket.emit('events', { test: 'test' });
-      socket.emit('identity', 0, response => console.log('Identity:', response),
-      );
+    socket.on('disconnect', function() {
+      console.log('Disconnected');
     });
 
     socket.on('events', function(data) {
@@ -20,9 +20,25 @@
       console.log('event', data);
     });
 
-    socket.on('disconnect', function() {
-      console.log('Disconnected');
-    });
+    setTimeout(() => {
+      socket.emit('room', { event: undefined }, response => console.log(response));
+    }, 2000);
+
+    setTimeout(() => {
+      socket.emit('room', { event: 'create_room' }, response => console.log(response));
+    }, 4000);
+
+    setTimeout(() => {
+      socket.emit('room', { event: 'join_room' }, response => console.log(response));
+    }, 6000);
+
+    setTimeout(() => {
+      socket.emit('room', { event: 'remove_room' }, response => console.log(response));
+    }, 8000);
+
+    setTimeout(() => {
+      socket.emit('room', { event: 'test' }, response => console.log(response));
+    }, 10000);
   </script>
 </head>
 
