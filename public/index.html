@@ -21,24 +21,90 @@
     });
 
     setTimeout(() => {
-      socket.emit('room', { event: undefined }, response => console.log(response));
-    }, 2000);
-
-    setTimeout(() => {
-      socket.emit('room', { event: 'create_room' }, response => console.log(response));
-    }, 4000);
-
-    setTimeout(() => {
-      socket.emit('room', { event: 'join_room' }, response => console.log(response));
+      socket.emit('room', {
+        event: 'create_room',
+        data: {
+          room: {
+            name: '123'
+          }
+        }
+      }, response => {
+        console.log(response)
+        socket.emit('room', {
+          event: 'join_room',
+          data: {
+            room: {
+              name: '123'
+            }
+          }
+        }, response => console.log(response));
+      });
     }, 6000);
 
-    setTimeout(() => {
-      socket.emit('room', { event: 'remove_room' }, response => console.log(response));
-    }, 8000);
+    // ERRO
+    /*setTimeout(() => {
+      socket.emit('room', {
+        event: undefined
+      }, response => console.log(response));
+    }, 2000);
 
+    // ERRO
     setTimeout(() => {
-      socket.emit('room', { event: 'test' }, response => console.log(response));
+      socket.emit('room', {
+        event: 'test',
+        data: {
+          room: {
+            name: 'xpto'
+          }
+        }
+      }, response => console.log(response));
     }, 10000);
+
+    // SUCESSO
+    setTimeout(() => {
+      socket.emit('room', {
+        event: 'create_room',
+        data: {
+          room: {
+            name: '123'
+          }
+        }
+      }, response => console.log(response));
+    }, 4000);
+
+    // SUCESSO
+    setTimeout(() => {
+      socket.emit('room', {
+        event: 'create_room',
+        data: {
+          room: {
+            name: '123'
+          }
+        }
+      }, response => {
+        console.log(response)
+        socket.emit('room', {
+          event: 'join_room',
+          data: {
+            room: {
+              name: '123'
+            }
+          }
+        }, response => console.log(response));
+      });
+    }, 6000);
+
+    // SUCESSO
+    setTimeout(() => {
+      socket.emit('room', {
+        event: 'remove_room',
+        data: {
+          room: {
+            name: '123'
+          }
+        }
+      }, response => console.log(response));
+    }, 8000);*/
   </script>
 </head>
 
