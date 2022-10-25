@@ -1,15 +1,20 @@
 import { Inject, Injectable, CACHE_MANAGER } from "@nestjs/common";
 import { Cache } from "cache-manager";
+import { RoomEntity } from "./room.service";
 
 @Injectable()
 export class RoomRepository {
   constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {}
   
   public async createRoom(roomName: string) {
-    return await this.cacheManager.set(roomName, { name: roomName, created: new Date() }, process.env.ROOM_TTL as unknown as number ?? 1000);
+    return await this.cacheManager.set(
+      roomName,
+      { name: roomName, createdAt: new Date() },
+      process.env.ROOM_TTL as unknown as number ?? 1000
+    );
   }
   
-  public async getRoom(roomName: string) {
+  public async getRoom(roomName: string): Promise<RoomEntity> {
     return await this.cacheManager.get(roomName);
   }
   
