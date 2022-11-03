@@ -14,6 +14,11 @@ export class RoomRepository {
     return room;
   }
   
+  public async updateRoom(room: RoomEntity) {
+    await this.cacheManager.set(room.name, room);
+    return room;
+  }
+  
   public async getRoom(roomName: string): Promise<RoomEntity> {
     return await this.cacheManager.get(roomName);
   }

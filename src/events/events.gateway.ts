@@ -5,6 +5,7 @@ import { RoomMessageDTO } from 'events/dto/room/room-message.dto';
 import { RoomService } from 'modules/room/room.service';
 import { ROOM_EVENTS } from 'modules/room/room.enum';
 import { CreateRoomDTO } from 'modules/room/dto/create-room.dto';
+import { JoinRoomDTO } from "modules/room/dto/join-room.dto";
 
 // TODO: Use config file instead
 const PORT        = (process.env.SOCKET_PORT ?? 8003) as number;
@@ -19,6 +20,9 @@ export class EventsGateway {
 
   @SubscribeMessage('room')
   async room(@MessageBody() message: RoomMessageDTO) {
+    console.log('## NEW MESSAGE ##');
+    console.log(message);
+    
     // TODO: validate using class-validator
     const event = message.event;
     if (!event) {
@@ -37,6 +41,10 @@ export class EventsGateway {
   
     if (event === ROOM_EVENTS.CREATE) {
       return await this.roomService.createRoom(CreateRoomDTO.fromRoomMessageDTO(message));
+    }
+    
+    if (event === ROOM_EVENTS.JOIN) {
+      return await this.roomService.joinRoom(JoinRoomDTO.fromRoomMessageDTO(message));
     }
   
     throw new BadRequestException(`Room ${roomName} not found`);

@@ -7,5 +7,6 @@ export class RoomMessageDTO {
     player: {
       name: string;
     }
-  }
+  };
+  socketId: string;
 }

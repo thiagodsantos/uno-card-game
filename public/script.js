@@ -49,7 +49,7 @@ function getSocketServer() {
 
 function socketEmit({ channel, event, data, callback }) {
   socket = getSocketServer();
-  return socket.emit(channel, { event, data }, response => callback ? callback(response) : console.log(response));
+  return socket.emit(channel, { event, data, socketId: socket.id }, response => callback ? callback(response) : console.log(response));
 }
 
 function emitRoomEvent({ data, callback }) {
@@ -63,6 +63,9 @@ function emitRoomEvent({ data, callback }) {
   return {
     createRoom: () => {
       return emit('create');
+    },
+    joinRoom: () => {
+      retur: emit('join');
     }
   }
 }
@@ -102,3 +105,17 @@ buttonCreateRoom.addEventListener('click', () => {
 
   roomEvent({ callback }).createRoom();
 });
+
+const buttonJoinRoom = document.getElementById("button_join_room");
+if (!buttonJoinRoom) {
+  console.error('Missing join room burron');
+}
+buttonJoinRoom.addEventListener('click', () => {
+  const callback = (response) => {
+    if (response.name) {
+      textCreatedRoom.innerText = response.name;
+    }
+  }
+
+  roomEvent({ callback }).joinRoom();
+})
