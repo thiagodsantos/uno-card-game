@@ -1,14 +1,16 @@
 import { Module } from '@nestjs/common';
-import { EventsModule } from "src/events/events.module";
-import { RoomModule } from "src/modules/room/room.module";
-import { ConfigModule } from "@nestjs/config";
+import { ConfigModule } from '@nestjs/config';
+import { EventsModule } from 'events/events.module';
+import { RoomModule } from 'modules/room/room.module';
+
+// TODO: Use config file instead
+const ENV_FILE = process.env.ENV_FILE ?? null;
 
 @Module({
   imports: [
     EventsModule,
-    RoomModule, ConfigModule.forRoot({ envFilePath: process.env.ENV_FILE })
+    RoomModule,
+    ConfigModule.forRoot({ envFilePath: ENV_FILE })
   ],
-  controllers: [],
-  providers: [],
 })
 export class AppModule {}

@@ -55,7 +55,7 @@ function socketEmit({ channel, event, data, callback }) {
 function emitRoomEvent({ data, callback }) {
   const emit = (ev) => {
     const channel = 'room';
-    const event   = ev + '_' + channel;
+    const event   = channel + '.' + ev;
 
     return socketEmit({ event, channel, data, callback });
   }
@@ -63,9 +63,6 @@ function emitRoomEvent({ data, callback }) {
   return {
     createRoom: () => {
       return emit('create');
-    },
-    joinRoom: () => {
-      return emit('join');
     }
   }
 }
@@ -81,7 +78,15 @@ function roomEvent({ callback } = {}) {
     return;
   }
 
-  return emitRoomEvent({ data: { room: { name: roomName, playerName } }, callback });
+  const room   = { name: roomName };
+  const player = { name: playerName };
+
+  return emitRoomEvent({ data: { room, player }, callback });
+}
+
+const textCreatedRoom = document.getElementById("room_created");
+if (!textCreatedRoom) {
+  console.error('Missing text to room name');
 }
 
 const buttonCreateRoom = document.getElementById("button_create_room");
@@ -90,20 +95,10 @@ if (!buttonCreateRoom) {
 }
 buttonCreateRoom.addEventListener('click', () => {
   const callback = (response) => {
-    console.log('create_room:', response);
+    if (response.name) {
+      textCreatedRoom.innerText = response.name;
+    }
   }
 
   roomEvent({ callback }).createRoom();
-});
-
-const buttonJoinRoom = document.getElementById("button_join_room");
-if (!buttonJoinRoom) {
-  console.error('Missing create room button');
-}
-buttonJoinRoom.addEventListener('click', () => {
-  const callback = (response) => {
-    console.log('join_room:', response);
-  }
-
-  roomEvent({ callback }).joinRoom();
 });

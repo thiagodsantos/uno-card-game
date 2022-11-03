@@ -1,36 +1,9 @@
-import { generate as generateUid } from "short-uuid"
-import { BadRequestException, Injectable, InternalServerErrorException } from "@nestjs/common";
-import { RoomRepository } from "src/modules/room/room.repository";
-
-/**
- * Room events available
- */
-enum ROOM_EVENTS {
-  CREATE_ROOM = 'create_room',
-  JOIN_ROOM   = 'join_room',
-  REMOVE_ROOM = 'remove_room',
-}
-
-interface RoomType {
-  name?: string;
-  players: PlayerType[];
-}
-
-interface PlayerType {
-  name?: string;
-}
-
-/**
- * Type received from message.data body
- */
-export interface DataType {
-  room: RoomType;
-}
-
-export class RoomEntity {
-  name: string;
-  createdAt: Date;
-}
+import { generate } from 'short-uuid'
+import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { RoomRepository } from 'modules/room/room.repository';
+import { CreateRoomDTO } from 'modules/room/dto/create-room.dto';
+import { RoomEntity } from 'modules/room/room.entity';
+import { PlayerEntity } from 'modules/player/player.entity';
 
 @Injectable()
 export class RoomService {
@@ -40,81 +13,31 @@ export class RoomService {
    * Create room by name
    * @param string roomName
    */
-  private async createRoom(data: DataType): Promise<string> {
-    const name = data.room.name + '_' + generateUid();
+  public async createRoom(createRoomDTO: CreateRoomDTO): Promise<RoomEntity> {
+    // TODO: Use helper instead
+    const name = createRoomDTO.roomName + '_' + generate();
     
-    const room = await this.roomRepository.getRoom(name);
-    if (room) {
+    const roomExists = await this.roomRepository.getRoom(name);
+    if (roomExists) {
       throw new BadRequestException(`Room ${name} already exists`);
     }
+  
+    // TODO: Dispatch event instead set player
+    const player: PlayerEntity = {
+      name: createRoomDTO.playerName,
+      createdAt: new Date()
+    }
+    
+    const room: RoomEntity = {
+      name,
+      createdAt: new Date(),
+      players: [player]
+    };
     
     try {
-      await this.roomRepository.createRoom(name);
-      // TODO: Dispatch command createdRoom
-      return name;
+      return await this.roomRepository.createRoom(room);
     } catch (error) {
-      throw new InternalServerErrorException(`Error on create room ${name}`);
+      throw new InternalServerErrorException(`Error on create room ${name}`, error);
     }
-  }
-  
-  /**
-   * Join room by name
-   * @param string roomName
-   */
-  private async joinRoom(data: DataType): Promise<RoomEntity> {
-    let room: RoomEntity;
-    
-    const roomName = data.room.name;
-    
-    try {
-      room = await this.roomRepository.getRoom(roomName);
-    } catch (error) {
-      throw new InternalServerErrorException(`Error on get room ${roomName}`);
-    }
-    
-    if (!room) {
-      throw new BadRequestException(`Room ${roomName} not exits`);
-    }
-    
-    return room;
-  }
-  
-  /**
-   * Remove room by name
-   * @param string roomName
-   * @private
-   */
-  private async removeRoom(roomName: string): Promise<void> {
-    try {
-      await this.roomRepository.removeRoom(roomName);
-    } catch (error) {
-      throw new InternalServerErrorException(`Error on get room ${roomName}`);
-    }
-  }
-  
-  /**
-   * Execute event by name
-   * @param eventName
-   * @param data
-   */
-  async execute(eventName: string, data: DataType) {
-    const roomName = data?.room?.name ?? null;
-    if (roomName === null) {
-      throw new BadRequestException('Room name required');
-    }
-    
-    if (eventName === ROOM_EVENTS.CREATE_ROOM) {
-      return await this.createRoom(data);
-    }
-  
-    if (eventName === ROOM_EVENTS.JOIN_ROOM) {
-      return this.joinRoom(data);
-    }
-  
-    if (eventName === ROOM_EVENTS.REMOVE_ROOM) {
-      return this.removeRoom(roomName);
-    }
-    
-    throw new BadRequestException(`Room ${roomName} not found`);
   }
 }

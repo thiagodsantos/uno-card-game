@@ -1,9 +1,9 @@
 import type { ClientOpts } from 'redis';
 import { redisStore } from 'cache-manager-redis-store';
 import { CacheModule, Module } from "@nestjs/common";
-import { EventsGateway } from "src/events/events.gateway";
-import { RoomService } from "src/modules/room/room.service";
-import { RoomRepository } from "src/modules/room/room.repository";
+import { EventsGateway } from "events/events.gateway";
+import { RoomService } from "modules/room/room.service";
+import { RoomRepository } from "modules/room/room.repository";
 
 const REDIS_PORT = (process.env.REDIS_HOST ?? 6379) as number;
 
