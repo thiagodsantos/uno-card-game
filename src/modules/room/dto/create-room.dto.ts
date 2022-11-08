@@ -1,4 +1,4 @@
-import { RoomMessageDTO } from "events/dto/room/room-message.dto";
+import { RoomMessageDTO } from 'events/dto/room/room-message.dto';
 
 export class CreateRoomDTO {
   readonly roomName: string;
@@ -6,18 +6,16 @@ export class CreateRoomDTO {
   readonly socketId: string;
   
   constructor(createRoom: CreateRoomDTO) {
-    this.roomName = createRoom.roomName;
     this.playerName = createRoom.playerName;
+    this.roomName = createRoom.roomName;
     this.socketId = createRoom.socketId;
   }
   
   static fromRoomMessageDTO(roomMessage: RoomMessageDTO) {
-    const createRoomDTO = new CreateRoomDTO({
-      roomName: roomMessage.data.room.name,
+    return new CreateRoomDTO({
       playerName: roomMessage.data.player.name,
+      roomName: roomMessage.data.room.name,
       socketId: roomMessage.socketId
     });
-    
-    return createRoomDTO;
   }
 }

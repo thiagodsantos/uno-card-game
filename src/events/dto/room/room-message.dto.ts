@@ -1,5 +1,7 @@
+import { ROOM_EVENTS } from 'modules/room/room.enum';
+
 export class RoomMessageDTO {
-  event: string;
+  event: ROOM_EVENTS;
   data: {
     room: {
       name: string;

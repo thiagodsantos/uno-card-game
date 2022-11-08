@@ -25,12 +25,12 @@ function getRoomName() {
   return getInputValue('room');
 }
 
-function getSocketServer() {
+async function getSocketServer() {
   if (socket) {
     return socket;
   }
 
-  socket = io('http://localhost:8003');
+  socket = await io('http://localhost:8003');
 
   socket.on('connect', () => {
     console.info('Connected...');
@@ -47,8 +47,8 @@ function getSocketServer() {
   return socket;
 }
 
-function socketEmit({ channel, event, data, callback }) {
-  socket = getSocketServer();
+async function socketEmit({ channel, event, data, callback }) {
+  socket = await getSocketServer();
   return socket.emit(channel, { event, data, socketId: socket.id }, response => callback ? callback(response) : console.log(response));
 }
 
@@ -65,7 +65,7 @@ function emitRoomEvent({ data, callback }) {
       return emit('create');
     },
     joinRoom: () => {
-      retur: emit('join');
+      return emit('join');
     }
   }
 }
@@ -86,6 +86,34 @@ function roomEvent({ callback } = {}) {
 
   return emitRoomEvent({ data: { room, player }, callback });
 }
+
+function emitMatchEvent({ data, callback }) {
+  const emit = (ev) => {
+    const channel = 'match';
+    const event   = channel + '.' + ev;
+
+    return socketEmit({ event, channel, data, callback });
+  }
+
+  return {
+    startMatch: () => {
+      return emit('start');
+    }
+  }
+}
+
+function matchEvent({ callback } = {}) {
+  const roomName = getRoomName();
+  if (!roomName) {
+    return;
+  }
+
+  const room = { name: roomName };
+
+  return emitMatchEvent({ data: { room }, callback });
+}
+
+getSocketServer();
 
 const textCreatedRoom = document.getElementById("room_created");
 if (!textCreatedRoom) {
@@ -108,14 +136,26 @@ buttonCreateRoom.addEventListener('click', () => {
 
 const buttonJoinRoom = document.getElementById("button_join_room");
 if (!buttonJoinRoom) {
-  console.error('Missing join room burron');
+  console.error('Missing join room button');
 }
-buttonJoinRoom.addEventListener('click', () => {
+buttonJoinRoom.addEventListener('click', async () => {
   const callback = (response) => {
     if (response.name) {
       textCreatedRoom.innerText = response.name;
     }
   }
 
-  roomEvent({ callback }).joinRoom();
+  await roomEvent({ callback }).joinRoom();
+});
+
+const buttonStartMatch = document.getElementById('button_start_match');
+if (!buttonStartMatch) {
+  console.error('Missing start match');
+}
+buttonStartMatch.addEventListener('click', async () => {
+  const callback = (response) => {
+    console.info(response);
+  }
+
+  await matchEvent({ callback }).startMatch();
 })

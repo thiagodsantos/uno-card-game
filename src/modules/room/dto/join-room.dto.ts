@@ -1,9 +1,9 @@
 import { RoomMessageDTO } from "events/dto/room/room-message.dto";
 
 export class JoinRoomDTO {
-  room: string;
-  player: string;
-  socketId: string;
+  readonly room: string;
+  readonly player: string;
+  readonly socketId: string;
   
   constructor(joinRoom: JoinRoomDTO) {
     this.room = joinRoom.room;
@@ -12,12 +12,10 @@ export class JoinRoomDTO {
   }
   
   static fromRoomMessageDTO(roomMessage: RoomMessageDTO) {
-    const joinRoomDTO = new JoinRoomDTO({
+    return new JoinRoomDTO({
       room: roomMessage.data.room.name,
       player: roomMessage.data.player.name,
       socketId: roomMessage.socketId
     });
-    
-    return joinRoomDTO;
   }
 }

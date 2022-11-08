@@ -1,48 +1,47 @@
-import { generate } from 'short-uuid'
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { RoomRepository } from 'modules/room/room.repository';
 import { CreateRoomDTO } from 'modules/room/dto/create-room.dto';
-import { RoomEntity } from 'modules/room/room.entity';
+import { MAX_PLAYERS, RoomEntity } from 'modules/room/room.entity';
 import { PlayerEntity } from 'modules/player/player.entity';
 import { JoinRoomDTO } from 'modules/room/dto/join-room.dto';
+import { MatchRepository } from 'modules/match/match.repository';
+import { MATCH_STATUS } from 'modules/match/match.enum';
 
 @Injectable()
 export class RoomService {
-  constructor(private roomRepository: RoomRepository) {}
+  constructor(
+    private readonly roomRepository: RoomRepository,
+    private readonly matchRepository: MatchRepository,
+  ) {}
   
   /**
-   * Create room by name
-   * @param string roomName
+   * Create room by CreateRoomDTO
+   * @param {CreateRoomDTO} roomName
    */
   public async createRoom(createRoomDTO: CreateRoomDTO): Promise<RoomEntity> {
-    // TODO: Use helper instead
-    const name = createRoomDTO.roomName + '_' + generate();
+    const name = createRoomDTO.roomName;
     
     const roomExists = await this.roomRepository.getRoom(name);
     if (roomExists) {
       throw new BadRequestException(`Room ${name} already exists`);
     }
-  
-    // TODO: Dispatch event instead set player
-    const player: PlayerEntity = {
-      name: createRoomDTO.playerName,
-      socketId: createRoomDTO.socketId,
-      createdAt: new Date()
-    }
     
-    const room: Partial<RoomEntity> = {
-      name,
-      createdAt: new Date(),
-      players: [player]
-    };
+    const player = PlayerEntity.createFromCreateRoomDTO(createRoomDTO);
+    
+    const createRoom = RoomEntity.create(createRoomDTO.roomName);
+    createRoom.addPlayer(player);
     
     try {
-      return await this.roomRepository.createRoom(<RoomEntity>room);
+      return await this.roomRepository.store(createRoom);
     } catch (error) {
       throw new InternalServerErrorException(`Error on create room ${name}`, error);
     }
   }
   
+  /**
+   * Join room by JoinRoomDTO
+   * @param {JoinRoomDTO} joinRoomDTO
+   */
   public async joinRoom(joinRoomDTO: JoinRoomDTO): Promise<boolean> {
     const room = await this.roomRepository.getRoom(joinRoomDTO.room);
     if (!room) {
@@ -58,27 +57,27 @@ export class RoomService {
       return true;
     }
   
-    if (room.players.length > 10) {
+    if (room.players.length > (MAX_PLAYERS - 1)) {
       throw new BadRequestException(`Room ${joinRoomDTO.room} is full`);
     }
     
-    room.players.push({
-      name: joinRoomDTO.player,
-      socketId: joinRoomDTO.socketId,
-      createdAt: new Date()
-    });
-    
-    const update: Partial<RoomEntity> = {
-      name: room.name,
-      players: room.players,
-      createdAt: room.createdAt,
+    const matchExists = await this.matchRepository.getMatch(room.name);
+    if (matchExists && matchExists.status === MATCH_STATUS.STARTED) {
+      throw new BadRequestException(`Room ${joinRoomDTO.room} started`);
     }
+    
+    const player = PlayerEntity.createFromJoinRoomDTO(joinRoomDTO);
+    
+    room.addPlayer(player);
 
     try {
-      await this.roomRepository.updateRoom(<RoomEntity>update);
+      await this.roomRepository.store(room);
       return true;
     } catch (error) {
-      throw new InternalServerErrorException(`Error on create room ${name}`, error);
+      throw new InternalServerErrorException(
+        `Error on join ${joinRoomDTO.player} in room ${joinRoomDTO.room}`,
+        error
+      );
     }
   }
 }
