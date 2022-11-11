@@ -1,14 +1,8 @@
-import { ROOM_EVENTS } from 'modules/room/room.enum';
+import { MessageDTO } from 'events/dto/message/message.dto';
+import { DataRoomType, DataPlayerType } from 'events/dto/message-data.types';
 
-export class RoomMessageDTO {
-  event: ROOM_EVENTS;
-  data: {
-    room: {
-      name: string;
-    },
-    player: {
-      name: string;
-    }
-  };
-  socketId: string;
+interface RoomMessageType implements DataRoomType, DataPlayerType { }
+
+export class RoomMessageDTO extends MessageDTO {
+  data: RoomMessageType;
 }

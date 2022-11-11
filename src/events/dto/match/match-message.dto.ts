@@ -1,11 +1,8 @@
-import { MATCH_EVENTS } from 'modules/match/match.enum';
+import { MessageDTO } from 'events/dto/message/message.dto';
+import { DataRoomType } from 'events/dto/message-data.types';
 
-export class MatchMessageDTO {
-  event: MATCH_EVENTS;
-  data: {
-    room: {
-      name: string;
-    }
-  };
-  socketId: string;
+
+
+export class MatchMessageDTO extends MessageDTO {
+  data: DataRoomType;
 }
