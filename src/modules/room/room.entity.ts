@@ -2,8 +2,6 @@ import { generate } from 'short-uuid';
 import { PlayerType } from 'modules/player/player.entity';
 import { BaseEntity } from 'shared/base-entity';
 
-export const MAX_PLAYERS = (process.env.MAX_PLAYERS ?? 10) as number;
-
 export type RoomType = {
   name: string;
   players?: PlayerType[];
@@ -16,15 +14,22 @@ export class RoomEntity extends BaseEntity {
   createdAt: Date;
   
   constructor(room: RoomType) {
-    super();
+    super(room);
     this.name = room.name;
     this.players = room.players ?? [];
     this.createdAt = room.createdAt ?? new Date();
   }
   
+  private static generateRoomName(roomName: string) {
+    const regex = /\s/ig;
+    const name  = (roomName.replaceAll(regex, '-') + '-' + generate()).toLowerCase();
+    
+    return name;
+  }
+  
   static create(roomName: string) {
     return new RoomEntity({
-      name: roomName + '_' + generate()
+      name: RoomEntity.generateRoomName(roomName)
     });
   }
   

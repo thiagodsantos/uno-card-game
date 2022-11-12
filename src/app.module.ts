@@ -7,7 +7,7 @@ import { RoomModule } from 'modules/room/room.module';
   imports: [
     EventsModule,
     RoomModule,
-    ConfigModule.forRoot({ envFilePath: ENV_FILE })
+    ConfigModule.forRoot()
   ],
 })
 export class AppModule {}

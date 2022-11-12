@@ -25,12 +25,12 @@ function getRoomName() {
   return getInputValue('room');
 }
 
-async function getSocketServer() {
+function getSocketServer() {
   if (socket) {
     return socket;
   }
 
-  socket = await io('http://localhost:8003');
+  socket = io('http://localhost:8003');
 
   socket.on('connect', () => {
     console.info('Connected...');
@@ -112,8 +112,6 @@ function matchEvent({ callback } = {}) {
 
   return emitMatchEvent({ data: { room }, callback });
 }
-
-getSocketServer();
 
 const textCreatedRoom = document.getElementById("room_created");
 if (!textCreatedRoom) {

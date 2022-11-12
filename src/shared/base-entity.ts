@@ -1,5 +1,5 @@
 export class BaseEntity {
-  constructor(entity?) {}
+  constructor(entity: BaseEntity) {}
   
   static load(data) {
     return new this(data);

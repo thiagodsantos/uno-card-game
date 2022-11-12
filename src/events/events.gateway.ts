@@ -1,21 +1,18 @@
 import { Server } from 'socket.io';
+import { CORS_ORIGIN, SOCKET_PORT } from 'env-vars';
 import { BadRequestException } from '@nestjs/common';
 import { MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
-import { RoomMessageDTO } from 'events/dto/room/room-message.dto';
-import { RoomService } from 'modules/room/room.service';
+import { MATCH_EVENTS } from 'modules/match/match.enum';
 import { ROOM_EVENTS } from 'modules/room/room.enum';
+import { RoomMessageDTO } from 'events/dto/room/room-message.dto';
 import { CreateRoomDTO } from 'modules/room/dto/create-room.dto';
 import { JoinRoomDTO } from 'modules/room/dto/join-room.dto';
 import { MatchMessageDTO } from 'events/dto/match/match-message.dto';
-import { MATCH_EVENTS } from 'modules/match/match.enum';
 import { StartMatchDTO } from 'modules/match/dto/start-match.dto';
+import { RoomService } from 'modules/room/room.service';
 import { MatchService } from 'modules/match/match.service';
 
-// TODO: Use config file instead
-const PORT        = (process.env.SOCKET_PORT ?? 8003) as number;
-const CORS_ORIGIN = (process.env.CORS_ORIGIN ?? '*') as string;
-
-@WebSocketGateway(PORT, { cors: { origin: CORS_ORIGIN } })
+@WebSocketGateway(SOCKET_PORT, { cors: { origin: CORS_ORIGIN } })
 export class EventsGateway {
   @WebSocketServer()
   private server: Server;

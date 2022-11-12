@@ -1,11 +1,12 @@
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { RoomRepository } from 'modules/room/room.repository';
 import { CreateRoomDTO } from 'modules/room/dto/create-room.dto';
-import { MAX_PLAYERS, RoomEntity } from 'modules/room/room.entity';
+import { RoomEntity } from 'modules/room/room.entity';
 import { PlayerEntity } from 'modules/player/player.entity';
 import { JoinRoomDTO } from 'modules/room/dto/join-room.dto';
 import { MatchRepository } from 'modules/match/match.repository';
 import { MATCH_STATUS } from 'modules/match/match.enum';
+import { MAX_PLAYERS } from 'env-vars';
 
 @Injectable()
 export class RoomService {
@@ -31,18 +32,14 @@ export class RoomService {
     const createRoom = RoomEntity.create(createRoomDTO.roomName);
     createRoom.addPlayer(player);
     
-    try {
-      return await this.roomRepository.store(createRoom);
-    } catch (error) {
-      throw new InternalServerErrorException(`Error on create room ${name}`, error);
-    }
+    return await this.roomRepository.store(createRoom);
   }
   
   /**
    * Join room by JoinRoomDTO
    * @param {JoinRoomDTO} joinRoomDTO
    */
-  public async joinRoom(joinRoomDTO: JoinRoomDTO): Promise<boolean> {
+  public async joinRoom(joinRoomDTO: JoinRoomDTO): Promise<void> {
     const room = await this.roomRepository.getRoom(joinRoomDTO.room);
     if (!room) {
       throw new BadRequestException(`Room ${joinRoomDTO.room} not exists`);
@@ -54,10 +51,10 @@ export class RoomService {
     }
     
     if (playerAlreadyJoined) {
-      return true;
+      return;
     }
   
-    if (room.players.length > (MAX_PLAYERS - 1)) {
+    if (room.players.length >= MAX_PLAYERS) {
       throw new BadRequestException(`Room ${joinRoomDTO.room} is full`);
     }
     
@@ -69,15 +66,7 @@ export class RoomService {
     const player = PlayerEntity.createFromJoinRoomDTO(joinRoomDTO);
     
     room.addPlayer(player);
-
-    try {
-      await this.roomRepository.store(room);
-      return true;
-    } catch (error) {
-      throw new InternalServerErrorException(
-        `Error on join ${joinRoomDTO.player} in room ${joinRoomDTO.room}`,
-        error
-      );
-    }
+    
+    await this.roomRepository.store(room);
   }
 }
