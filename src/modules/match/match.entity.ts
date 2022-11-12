@@ -1,12 +1,12 @@
 import { RoomEntity } from 'modules/room/room.entity';
-import { PlayerEntity, PlayerType } from 'modules/player/player.entity';
+import { PlayerEntity } from 'modules/player/player.entity';
 import { MATCH_STATUS } from 'modules/match/match.enum';
-
-export const PLAYER_INITIAL_QTY_CARDS = 7;
+import { randomNumber } from 'shared/number';
+import { PLAYER_INITIAL_QTY_CARDS } from 'env-vars';
 
 export type CardType = {
   color?: string;
-  card: string;
+  value: string;
 }
 
 export type MatchPlayerType = {
@@ -20,6 +20,7 @@ type MatchType = {
   status: MATCH_STATUS;
   players?: MatchPlayerType[];
   availableCards?: CardType[];
+  initialCard?: CardType;
   createdAt?: Date;
 }
 
@@ -28,6 +29,7 @@ export class MatchEntity {
   players?: MatchPlayerType[];
   status: MATCH_STATUS;
   availableCards?: CardType[];
+  initialCard?: CardType;
   createdAt: Date;
   
   constructor(match: MatchType) {
@@ -65,7 +67,7 @@ export class MatchEntity {
       const cardHasColor = card.length > 1;
   
       const playerCard: CardType = {
-        card: cardHasColor ? card[1] : card[0],
+        value: cardHasColor ? card[1] : card[0],
         color: cardHasColor ? card[0] : undefined
       };
       
@@ -83,7 +85,7 @@ export class MatchEntity {
       const cardHasColor = card.length > 1;
     
       const playerCard: CardType = {
-        card: cardHasColor ? card[1] : card[0],
+        value: cardHasColor ? card[1] : card[0],
         color: cardHasColor ? card[0] : undefined
       };
     
@@ -91,5 +93,27 @@ export class MatchEntity {
     }
   
     return cards;
+  }
+  
+  getInitialCardFromAvailableCards() {
+    const size = this.availableCards.length;
+    if (size === 0) {
+      return null;
+    }
+    
+    const index = randomNumber(0, size - 1);
+    return this.availableCards[index];
+  }
+  
+  removeCardFromDeck(card: CardType) {
+    const searchCard: CardType = { value: card.value };
+    if (searchCard.color) {
+      searchCard.color = card.color;
+    }
+    
+    const index = this.availableCards.indexOf(searchCard);
+    if (index > -1) {
+      this.availableCards.splice(index, 1);
+    }
   }
 }

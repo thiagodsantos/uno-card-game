@@ -1,6 +1,7 @@
+import { PLAYER_INITIAL_QTY_CARDS } from 'env-vars';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { StartMatchDTO } from 'modules/match/dto/start-match.dto';
-import { MatchEntity, PLAYER_INITIAL_QTY_CARDS } from 'modules/match/match.entity';
+import { MatchEntity } from 'modules/match/match.entity';
 import { MatchRepository } from 'modules/match/match.repository';
 import { RoomRepository } from 'modules/room/room.repository';
 import { CardEntity } from 'modules/card/card.entity';
@@ -31,19 +32,22 @@ export class MatchService {
     if (!hasPlayers) {
       throw new BadRequestException(`Room ${startMatchDTO.room} without players`);
     }
-    
-    const match = MatchEntity.createFromRoom(room);
+  
+    const match      = MatchEntity.createFromRoom(room);
     const cardEntity = new CardEntity();
-    let deck = cardEntity.getDeck();
+    const deck       = cardEntity.getDeck();
     
     for (const player of room.players) {
       const cards = match.getPlayerCardsFromDeck(deck);
       
       match.addPlayer({ ...player, cards });
-      deck.splice(0, PLAYER_INITIAL_QTY_CARDS - 1);
+      deck.splice(0, PLAYER_INITIAL_QTY_CARDS);
     }
     
     match.availableCards = match.getAvailableCardsFromDeck(deck);
+    match.initialCard    = match.getInitialCardFromAvailableCards();
+    
+    match.removeCardFromDeck(match.initialCard);
     
     await this.matchRepository.createMatch(match);
   }
