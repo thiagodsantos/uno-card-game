@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { RoomRepository } from 'modules/room/room.repository';
 import { CreateRoomDTO } from 'modules/room/dto/create-room.dto';
 import { RoomEntity } from 'modules/room/room.entity';

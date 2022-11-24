@@ -1,4 +1,4 @@
-import { MatchMessageDTO } from 'events/dto/match/match-message.dto';
+import { MatchMessageDTO } from 'modules/match/dto/match-message.dto';
 
 export class StartMatchDTO {
   readonly room: string;

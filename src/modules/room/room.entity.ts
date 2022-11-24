@@ -1,6 +1,6 @@
 import { generate } from 'short-uuid';
 import { PlayerType } from 'modules/player/player.entity';
-import { BaseEntity } from 'shared/base-entity';
+import { BaseEntity } from 'utils/base-entity';
 
 export type RoomType = {
   name: string;

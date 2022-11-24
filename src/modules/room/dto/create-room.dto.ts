@@ -1,4 +1,4 @@
-import { RoomMessageDTO } from 'events/dto/room/room-message.dto';
+import { RoomMessageDTO } from 'modules/room/dto/room-message.dto';
 
 export class CreateRoomDTO {
   readonly roomName: string;

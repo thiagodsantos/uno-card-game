@@ -1,28 +1,8 @@
-import { RoomEntity } from 'modules/room/room.entity';
-import { PlayerEntity } from 'modules/player/player.entity';
-import { MATCH_STATUS } from 'modules/match/match.enum';
-import { randomNumber } from 'shared/number';
 import { PLAYER_INITIAL_QTY_CARDS } from 'env-vars';
-
-export type CardType = {
-  color?: string;
-  value: string;
-}
-
-export type MatchPlayerType = {
-  cards?: CardType[]
-} & Omit<PlayerEntity, 'createdAt'>;
-
-export type MatchRoomType = Omit<RoomEntity, 'players' | 'createdAt' | 'addPlayer'>;
-
-type MatchType = {
-  room: MatchRoomType;
-  status: MATCH_STATUS;
-  players?: MatchPlayerType[];
-  availableCards?: CardType[];
-  initialCard?: CardType;
-  createdAt?: Date;
-}
+import { randomNumber } from 'utils/number';
+import { RoomEntity } from 'modules/room/room.entity';
+import { MATCH_STATUS } from 'modules/match/match.enum';
+import { CardType, MatchPlayerType, MatchRoomType, MatchType } from 'modules/match/match.types';
 
 export class MatchEntity {
   room: MatchRoomType;

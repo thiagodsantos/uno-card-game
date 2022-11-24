@@ -33,21 +33,29 @@ export class MatchService {
       throw new BadRequestException(`Room ${startMatchDTO.room} without players`);
     }
   
-    const match      = MatchEntity.createFromRoom(room);
-    const cardEntity = new CardEntity();
-    const deck       = cardEntity.getDeck();
+    const deck  = (new CardEntity()).getDeck();
+    const match = MatchEntity.createFromRoom(room);
+    const cards = match.getPlayerCardsFromDeck(deck);
     
     for (const player of room.players) {
-      const cards = match.getPlayerCardsFromDeck(deck);
-      
       match.addPlayer({ ...player, cards });
       deck.splice(0, PLAYER_INITIAL_QTY_CARDS);
     }
     
-    match.availableCards = match.getAvailableCardsFromDeck(deck);
-    match.initialCard    = match.getInitialCardFromAvailableCards();
+    const availableCards = match.getAvailableCardsFromDeck(deck);
+    if (!availableCards.length) {
+      throw new BadRequestException(`Room ${startMatchDTO.room} without available cards in deck`);
+    }
     
-    match.removeCardFromDeck(match.initialCard);
+    match.availableCards = availableCards;
+    
+    const initialCard = match.getInitialCardFromAvailableCards();
+    if (!initialCard) {
+      throw new BadRequestException(`Room ${startMatchDTO.room} without initial card`);
+    }
+    
+    match.initialCard = initialCard;
+    match.removeCardFromDeck(initialCard);
     
     await this.matchRepository.createMatch(match);
   }

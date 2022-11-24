@@ -1,5 +1,5 @@
-import { randomNumber } from 'shared/number';
-import { shuffleArray } from 'shared/array';
+import { randomNumber } from 'utils/number';
+import { shuffleArray } from 'utils/array';
 
 const TWO_CARDS = 2;
 const FOUR_CARDS = 4;
