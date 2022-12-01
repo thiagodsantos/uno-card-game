@@ -7,7 +7,7 @@ import { MatchEntity } from 'modules/match/match.entity';
 export class MatchRepository {
   constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {}
   
-  public async createMatch(match: MatchEntity): Promise<void> {
+  public async store(match: MatchEntity): Promise<void> {
     try {
       await this.cacheManager.set(MATCH_PREFIX + match.room.name, match, MATCH_TTL);
     } catch (error) {
@@ -15,7 +15,7 @@ export class MatchRepository {
     }
   }
   
-  public async getMatch(roomName: string): Promise<MatchEntity> {
+  public async getMatchByRoomName(roomName: string): Promise<MatchEntity> {
     try {
       return await this.cacheManager.get(MATCH_PREFIX + roomName);
     } catch (error) {

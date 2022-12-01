@@ -15,3 +15,7 @@ export const MAX_PLAYERS = parseInt(process.env.MAX_PLAYERS) ?? 10;
 export const MATCH_TTL    = parseInt(process.env.MATCH_TTL) ?? 1000;
 export const MATCH_PREFIX = process.env.MATCH_PREFIX ?? 'MATCH_';
 export const PLAYER_INITIAL_QTY_CARDS = parseInt(process.env.PLAYER_INITIAL_QTY_CARDS) ?? 7;
+
+// PLAYER
+export const PLAYER_TTL = parseInt(process.env.PLAYER_TTL) ?? 1000;
+export const PLAYER_PREFIX = process.env.PLAYER_PREFIX ?? 'PLAYER_';

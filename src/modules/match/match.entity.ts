@@ -10,16 +10,25 @@ export class MatchEntity {
   status: MATCH_STATUS;
   availableCards?: CardType[];
   initialCard?: CardType;
+  currentCard?: CardType;
+  currentPlayer?: MatchPlayerType;
   createdAt: Date;
   
   constructor(match: MatchType) {
     this.room = match.room;
     this.status = match.status;
-    this.players = match.players ?? [];
-    this.availableCards = match.availableCards ?? [];
-    this.createdAt = match.createdAt ?? new Date();
+    this.players = [];
+    this.availableCards = [];
+    this.initialCard = null;
+    this.currentCard = null;
+    this.currentPlayer = null;
+    this.createdAt = new Date();
   }
   
+  /**
+   * @param {RoomEntity} room
+   * @returns RoomEntity
+   */
   static createFromRoom(room: RoomEntity) {
     return new MatchEntity({
       room: {
@@ -30,7 +39,10 @@ export class MatchEntity {
     });
   }
   
-  addPlayer(player: MatchPlayerType) {
+  /**
+   * @param {MatchPlayerType} player
+   */
+  public addPlayer(player: MatchPlayerType): void {
     this.players.push({
       name: player.name,
       owner: player.owner,
@@ -39,7 +51,11 @@ export class MatchEntity {
     });
   }
   
-  getPlayerCardsFromDeck(deck: string[]) {
+  /**
+   * @param {string[]} deck
+   * @returns CardType[]
+   */
+  public getPlayerCardsFromDeck(deck: string[]): CardType[] {
     const cards: CardType[] = [];
     
     for (let i = 0; i < PLAYER_INITIAL_QTY_CARDS; i++) {
@@ -57,7 +73,11 @@ export class MatchEntity {
     return cards;
   }
   
-  getAvailableCardsFromDeck(deck: string[]) {
+  /**
+   * @param {string[]} deck
+   * @returns CardType[]
+   */
+  public getAvailableCardsFromDeck(deck: string[]): CardType[] {
     const cards: CardType[] = [];
     
     for (let i = 0; i < deck.length; i++) {
@@ -75,7 +95,10 @@ export class MatchEntity {
     return cards;
   }
   
-  getInitialCardFromAvailableCards() {
+  /**
+   * @returns CardType
+   */
+  public getInitialCardFromAvailableCards(): CardType {
     const size = this.availableCards.length;
     if (size === 0) {
       return null;
@@ -85,7 +108,10 @@ export class MatchEntity {
     return this.availableCards[index];
   }
   
-  removeCardFromDeck(card: CardType) {
+  /**
+   * @param {CardType} card
+   */
+  public removeCardFromDeck(card: CardType): void {
     const searchCard: CardType = { value: card.value };
     if (searchCard.color) {
       searchCard.color = card.color;
@@ -95,5 +121,38 @@ export class MatchEntity {
     if (index > -1) {
       this.availableCards.splice(index, 1);
     }
+  }
+
+  /**
+   * @param {string} playerName
+   * @returns CardType[]
+   */
+  public getCardsByPlayerName(playerName: string): CardType[] {
+    const playerExists = this.players.filter(player => player.name === playerName);
+    if (playerExists.length === 0 || playerExists.length > 1) {
+      return null;
+    }
+    
+    const [ player ] = playerExists;
+    if (player.cards.length === 0) {
+      return null;
+    }
+
+    return player.cards;
+  }
+
+  /**
+   * @param {string} playerName
+   * @param {CardType[]} cards 
+   * @returns MatchPlayerType[]
+   */
+  public updatePlayerCardsByPlayerName(playerName: string, cards: CardType[]) {
+    return this.players.map(player => {
+      if (player.name !== playerName) {
+        return;
+      }
+
+      player.cards = cards;
+    });
   }
 }

@@ -1,18 +1,29 @@
+// Nest.js
 import { BadRequestException, Injectable } from '@nestjs/common';
+
+// Config
+import { MAX_PLAYERS } from 'env-vars';
+
+// Room
 import { RoomRepository } from 'modules/room/room.repository';
 import { CreateRoomDTO } from 'modules/room/dto/create-room.dto';
-import { RoomEntity } from 'modules/room/room.entity';
-import { PlayerEntity } from 'modules/player/player.entity';
 import { JoinRoomDTO } from 'modules/room/dto/join-room.dto';
-import { MatchRepository } from 'modules/match/match.repository';
+import { RoomEntity } from 'modules/room/room.entity';
+
+// Match
 import { MATCH_STATUS } from 'modules/match/match.enum';
-import { MAX_PLAYERS } from 'env-vars';
+import { MatchService } from 'modules/match/match.service';
+
+// Player
+import { PlayerEntity } from 'modules/player/player.entity';
+import { PlayerService } from 'modules/player/player.service';
 
 @Injectable()
 export class RoomService {
   constructor(
     private readonly roomRepository: RoomRepository,
-    private readonly matchRepository: MatchRepository,
+    private readonly playerService: PlayerService,
+    private readonly matchService: MatchService,
   ) {}
   
   /**
@@ -27,10 +38,11 @@ export class RoomService {
       throw new BadRequestException(`Room ${name} already exists`);
     }
     
-    const player = PlayerEntity.createFromCreateRoomDTO(createRoomDTO);
+    const createPlayer = PlayerEntity.createFromCreateRoomDTO(createRoomDTO);
+    await this.playerService.store(createPlayer);
     
     const createRoom = RoomEntity.create(createRoomDTO.roomName);
-    createRoom.addPlayer(player);
+    createRoom.addPlayer(createPlayer);
     
     return await this.roomRepository.store(createRoom);
   }
@@ -40,14 +52,14 @@ export class RoomService {
    * @param {JoinRoomDTO} joinRoomDTO
    */
   public async joinRoom(joinRoomDTO: JoinRoomDTO): Promise<void> {
-    const room = await this.roomRepository.getRoom(joinRoomDTO.room);
+    const room = await this.roomRepository.getRoom(joinRoomDTO.roomName);
     if (!room) {
-      throw new BadRequestException(`Room ${joinRoomDTO.room} not exists`);
+      throw new BadRequestException(`Room ${joinRoomDTO.roomName} not exists`);
     }
     
-    const [playerAlreadyJoined] = room.players.filter(player => player.name === joinRoomDTO.player);
+    const [playerAlreadyJoined] = room.players.filter(player => player.name === joinRoomDTO.playerName);
     if (playerAlreadyJoined && playerAlreadyJoined.socketId !== joinRoomDTO.socketId) {
-      throw new BadRequestException(`Player ${joinRoomDTO.player} already exists`);
+      throw new BadRequestException(`Player ${joinRoomDTO.playerName} already exists`);
     }
     
     if (playerAlreadyJoined) {
@@ -55,12 +67,12 @@ export class RoomService {
     }
   
     if (room.players.length >= MAX_PLAYERS) {
-      throw new BadRequestException(`Room ${joinRoomDTO.room} is full`);
+      throw new BadRequestException(`Room ${joinRoomDTO.roomName} is full`);
     }
     
-    const matchExists = await this.matchRepository.getMatch(room.name);
-    if (matchExists && matchExists.status === MATCH_STATUS.STARTED) {
-      throw new BadRequestException(`Room ${joinRoomDTO.room} started`);
+    const matchExists = await this.matchService.getMatchByRoomName(room.name);
+    if (matchExists.status === MATCH_STATUS.STARTED) {
+      throw new BadRequestException(`Room ${joinRoomDTO.roomName} started`);
     }
     
     const player = PlayerEntity.createFromJoinRoomDTO(joinRoomDTO);

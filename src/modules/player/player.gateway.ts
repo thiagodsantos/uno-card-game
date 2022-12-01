@@ -4,12 +4,14 @@ import { CORS_ORIGIN, SOCKET_PORT } from 'env-vars';
 import { PlayerMessageDTO } from 'modules/player/dto/player-message.dto';
 import { PlayCardDTO } from 'modules/player/dto/play-card.dto';
 import { PLAYER_EVENTS } from 'modules/player/player.enum';
+import { PlayerService } from 'modules/player/player.service';
 
 @WebSocketGateway(SOCKET_PORT, { cors: { origin: CORS_ORIGIN } })
 export class PlayerGateway {
+  constructor(private readonly playerService: PlayerService) {}
   
   @SubscribeMessage('player')
-  async player(@MessageBody() message: PlayerMessageDTO) {
+  public async player(@MessageBody() message: PlayerMessageDTO) {
     console.log('\n## NEW MESSAGE: PLAYER ##\n');
     console.log(message);
     
@@ -20,7 +22,7 @@ export class PlayerGateway {
     }
     
     if (event === PLAYER_EVENTS.PLAY_CARD) {
-      return PlayCardDTO.fromPlayerMessageDTO(message);
+      return this.playerService.playCard(PlayCardDTO.fromPlayerMessageDTO(message));
     }
     
     throw new BadRequestException(`Player event ${event} not found`);

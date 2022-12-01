@@ -3,20 +3,20 @@ import { CardType } from "modules/match/match.types";
 
 export class PlayCardDTO {
   readonly card: CardType;
-  readonly player: string;
-  readonly room: string;
+  readonly roomName: string;
+  readonly playerName: string;
 
   constructor(playCard: PlayCardDTO) {
     this.card = playCard.card;
-    this.player = playCard.player;
-    this.room = playCard.room;
+    this.roomName = playCard.roomName;
+    this.playerName = playCard.playerName;
   }
 
   static fromPlayerMessageDTO(playerMessageDTO: PlayerMessageDTO) {
     return new PlayCardDTO({
       card: playerMessageDTO.data.card,
-      player: playerMessageDTO.data.player.name,
-      room: playerMessageDTO.data.room.name
+      roomName: playerMessageDTO.data.room.name,
+      playerName: playerMessageDTO.data.player.name
     });
   }
 }

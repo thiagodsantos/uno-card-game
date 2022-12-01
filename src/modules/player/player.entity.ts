@@ -32,7 +32,7 @@ export class PlayerEntity implements PlayerType {
   static createFromJoinRoomDTO(joinRoomDTO: JoinRoomDTO) {
     return new PlayerEntity({
       owner: false,
-      name: joinRoomDTO.player,
+      name: joinRoomDTO.playerName,
       socketId: joinRoomDTO.socketId
     });
   }
