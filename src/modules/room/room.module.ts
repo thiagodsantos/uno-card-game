@@ -1,9 +1,12 @@
+import redis from 'infrastructure/redis';
 import { Module } from "@nestjs/common";
 import { RoomService } from 'modules/room/room.service';
 import { RoomRepository } from 'modules/room/room.repository';
-import { MatchRepository } from 'modules/match/match.repository';
 import { RoomGateway } from 'modules/room/room.gateway';
-import redis from 'infrastructure/redis';
+import { PlayerService } from 'modules/player/player.service';
+import { MatchService } from 'modules/match/match.service';
+import { PlayerRepository } from 'modules/player/player.repository';
+import { MatchRepository } from 'modules/match/match.repository';
 
 @Module({
   imports: [redis],
@@ -11,6 +14,9 @@ import redis from 'infrastructure/redis';
     RoomGateway,
     RoomService,
     RoomRepository,
+    PlayerService,
+    PlayerRepository,
+    MatchService,
     MatchRepository
   ],
 })

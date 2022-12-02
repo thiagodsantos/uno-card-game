@@ -22,7 +22,7 @@ export class MatchService {
   public async getMatchByRoomName(roomName: string): Promise<MatchEntity> {
     const match = await this.matchRepository.getMatchByRoomName(roomName);
     if (!match) {
-      throw new BadRequestException(`Room ${roomName} not exists`);
+      throw new BadRequestException(`Match in room ${roomName} not exists`);
     }
 
     return match;

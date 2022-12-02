@@ -1,10 +1,22 @@
 import { PLAYER_INITIAL_QTY_CARDS } from 'env-vars';
 import { randomNumber } from 'utils/number';
+import { BaseEntity } from 'utils/base-entity';
 import { RoomEntity } from 'modules/room/room.entity';
 import { MATCH_STATUS } from 'modules/match/match.enum';
-import { CardType, MatchPlayerType, MatchRoomType, MatchType } from 'modules/match/match.types';
+import { CardType, MatchPlayerType, MatchRoomType } from 'modules/match/match.types';
 
-export class MatchEntity {
+interface MatchInterface {
+  room: MatchRoomType;
+  status: MATCH_STATUS;
+  players?: MatchPlayerType[];
+  availableCards?: CardType[];
+  initialCard?: CardType;
+  currentCard?: CardType;
+  currentPlayer?: MatchPlayerType;
+  createdAt?: Date;
+}
+
+export class MatchEntity extends BaseEntity implements MatchInterface {
   room: MatchRoomType;
   players?: MatchPlayerType[];
   status: MATCH_STATUS;
@@ -14,14 +26,15 @@ export class MatchEntity {
   currentPlayer?: MatchPlayerType;
   createdAt: Date;
   
-  constructor(match: MatchType) {
+  constructor(match: MatchInterface) {
+    super(match);
     this.room = match.room;
     this.status = match.status;
-    this.players = [];
-    this.availableCards = [];
-    this.initialCard = null;
-    this.currentCard = null;
-    this.currentPlayer = null;
+    this.players = match.players ?? [];
+    this.availableCards = match.availableCards ?? [];
+    this.initialCard = match.initialCard ?? null;
+    this.currentCard = match.currentCard ?? null;
+    this.currentPlayer = match.currentPlayer ?? null;
     this.createdAt = new Date();
   }
   
@@ -45,7 +58,7 @@ export class MatchEntity {
   public addPlayer(player: MatchPlayerType): void {
     this.players.push({
       name: player.name,
-      owner: player.owner,
+      roomOwner: player.roomOwner,
       socketId: player.socketId,
       cards: player.cards ?? []
     });

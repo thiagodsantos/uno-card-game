@@ -1,19 +1,19 @@
 import { generate } from 'short-uuid';
-import { PlayerType } from 'modules/player/player.entity';
+import { PlayerInterface } from 'modules/player/player.entity';
 import { BaseEntity } from 'utils/base-entity';
 
-export type RoomType = {
+interface RoomInterface {
   name: string;
-  players?: PlayerType[];
+  players?: PlayerInterface[];
   createdAt?: Date;
 }
 
-export class RoomEntity extends BaseEntity {
+export class RoomEntity extends BaseEntity implements RoomInterface {
   name: string;
-  players?: PlayerType[];
+  players?: PlayerInterface[];
   createdAt: Date;
   
-  constructor(room: RoomType) {
+  constructor(room: RoomInterface) {
     super(room);
     this.name = room.name;
     this.players = room.players ?? [];
@@ -33,7 +33,7 @@ export class RoomEntity extends BaseEntity {
     });
   }
   
-  addPlayer(player: PlayerType) {
+  addPlayer(player: PlayerInterface) {
     this.players.push(player);
   }
 }

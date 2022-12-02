@@ -31,35 +31,28 @@ export class PlayerService {
     if (!playerCards) {
       throw new BadRequestException(`Player ${playCardDTO.playerName} without cards`);
     }
-
-    const removeCardFromPlayer = playerCards.filter(playerCard => {
+  
+    let playerHasCard = false;
+    let playerCardIndex = null;
+    for (const [index, playerCard] of playerCards.entries()) {
+      const sameColor = Boolean(playerCard.color) ? playerCard.color === playCardDTO.card.color : true;
       const sameValue = playerCard.value === playCardDTO.card.value;
-      if (!sameValue) {
-        return true;
+  
+      if (sameColor && sameValue) {
+        playerHasCard = true;
+        playerCards.splice(index, 1);
+        break;
       }
-
-      const hasColor = Boolean(playerCard.color);
-      if (sameValue || !hasColor) {
-        return false;
-      }
-
-      const sameColor = playerCard.color === playCardDTO.card.color;
-      if (sameValue || sameColor) {
-        return false;
-      }
-
-      return true;
-    });
-
-    const playerHasPlayCard = playerCards.length === removeCardFromPlayer.length;
-    if (!playerHasPlayCard) {
+    }
+    
+    if (!playerHasCard) {
       const { value, color } = playCardDTO.card;
       const card = color ? `${color} ${value}` : value;
       throw new BadRequestException(`Player ${playCardDTO.playerName} without card ${card}`);
     }
 
     match.currentCard = playCardDTO.card;
-    match.updatePlayerCardsByPlayerName(playCardDTO.playerName, removeCardFromPlayer);
+    match.updatePlayerCardsByPlayerName(playCardDTO.playerName, playerCards);
 
     await this.matchService.store(match);
   }

@@ -17,7 +17,12 @@ export class MatchRepository {
   
   public async getMatchByRoomName(roomName: string): Promise<MatchEntity> {
     try {
-      return await this.cacheManager.get(MATCH_PREFIX + roomName);
+      const match = await this.cacheManager.get(MATCH_PREFIX + roomName);
+      if (!match) {
+        return null;
+      }
+      
+      return MatchEntity.load(match) as MatchEntity;
     } catch (error) {
       throw new InternalServerErrorException(error);
     }
