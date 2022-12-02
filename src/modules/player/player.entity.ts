@@ -1,38 +1,45 @@
 import { CreateRoomDTO } from 'modules/room/dto/create-room.dto';
 import { JoinRoomDTO } from 'modules/room/dto/join-room.dto';
+import { BaseEntity } from 'utils/base-entity';
 
-export type PlayerType = {
+export interface PlayerInterface {
   name: string;
-  owner: boolean;
+  room?: string;
+  roomOwner: boolean;
   socketId: string;
-  createdAt?: Date;
 }
 
-export class PlayerEntity implements PlayerType {
+export class PlayerEntity extends BaseEntity implements PlayerInterface {
   name: string;
-  owner: boolean;
+  room?: string;
+  roomOwner: boolean;
   socketId: string;
   createdAt: Date;
   
-  constructor(player: PlayerType) {
+  constructor(player: PlayerInterface) {
+    super(player);
     this.name = player.name;
-    this.owner = player.owner;
+    this.roomOwner = player.roomOwner;
     this.socketId = player.socketId;
-    this.createdAt = player.createdAt ?? new Date();
+    this.createdAt = new Date();
+    
+    if (player.room) {
+      this.room = player.room;
+    }
   }
   
   static createFromCreateRoomDTO(createRoomDTO: CreateRoomDTO) {
     return new PlayerEntity({
-      owner: true,
       name: createRoomDTO.playerName,
+      roomOwner: true,
       socketId: createRoomDTO.socketId
     });
   }
   
   static createFromJoinRoomDTO(joinRoomDTO: JoinRoomDTO) {
     return new PlayerEntity({
-      owner: false,
-      name: joinRoomDTO.player,
+      name: joinRoomDTO.playerName,
+      roomOwner: false,
       socketId: joinRoomDTO.socketId
     });
   }

@@ -1,15 +1,15 @@
 import { MatchMessageDTO } from 'modules/match/dto/match-message.dto';
 
 export class StartMatchDTO {
-  readonly room: string;
+  readonly roomName: string;
   
   constructor(startMatch: StartMatchDTO) {
-    this.room = startMatch.room;
+    this.roomName = startMatch.roomName;
   }
   
   static fromMatchMessageDTO(matchMessageDTO: MatchMessageDTO) {
     return new StartMatchDTO({
-      room: matchMessageDTO.data.room.name,
+      roomName: matchMessageDTO.data.room.name,
     });
   }
 }

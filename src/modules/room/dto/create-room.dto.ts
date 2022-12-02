@@ -6,15 +6,15 @@ export class CreateRoomDTO {
   readonly socketId: string;
   
   constructor(createRoom: CreateRoomDTO) {
-    this.playerName = createRoom.playerName;
     this.roomName = createRoom.roomName;
+    this.playerName = createRoom.playerName;
     this.socketId = createRoom.socketId;
   }
   
   static fromRoomMessageDTO(roomMessage: RoomMessageDTO) {
     return new CreateRoomDTO({
-      playerName: roomMessage.data.player.name,
       roomName: roomMessage.data.room.name,
+      playerName: roomMessage.data.player.name,
       socketId: roomMessage.socketId
     });
   }

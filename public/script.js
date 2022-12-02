@@ -1,4 +1,5 @@
 var socket;
+var connected = false;
 
 function getInputValue(inputName, label) {
   const name = `${inputName}_name`;
@@ -25,14 +26,15 @@ function getRoomName() {
   return getInputValue('room');
 }
 
-function getSocketServer() {
+async function getSocketServer() {
   if (socket) {
     return socket;
   }
 
-  socket = io('http://localhost:8003');
+  socket = await io('http://localhost:8003');
 
   socket.on('connect', () => {
+    connected = true;
     console.info('Connected...');
   });
 
@@ -49,13 +51,23 @@ function getSocketServer() {
 
 async function socketEmit({ channel, event, data, callback }) {
   socket = await getSocketServer();
-  return socket.emit(channel, { event, data, socketId: socket.id }, response => callback ? callback(response) : console.log(response));
+
+  if (socket.id) {
+    return socket.emit(channel, { event, data, socketId: socket.id }, response => callback ? callback(response) : console.log(response));
+  }
+
+  const loop = setInterval(() => {
+    if (socket.id) {
+      clearInterval(loop);
+      return socket.emit(channel, { event, data, socketId: socket.id }, response => callback ? callback(response) : console.log(response));
+    }
+  }, 2000);
 }
 
 function emitRoomEvent({ data, callback }) {
-  const emit = (ev) => {
+  const emit = (eventName) => {
     const channel = 'room';
-    const event   = channel + '.' + ev;
+    const event   = channel + '.' + eventName;
 
     return socketEmit({ event, channel, data, callback });
   }
@@ -148,7 +160,7 @@ buttonJoinRoom.addEventListener('click', async () => {
 
 const buttonStartMatch = document.getElementById('button_start_match');
 if (!buttonStartMatch) {
-  console.error('Missing start match');
+  console.error('Missing start match button');
 }
 buttonStartMatch.addEventListener('click', async () => {
   const callback = (response) => {
@@ -156,4 +168,18 @@ buttonStartMatch.addEventListener('click', async () => {
   }
 
   await matchEvent({ callback }).startMatch();
-})
+});
+
+const buttonSocketEmit = document.getElementById('button_socket_emit');
+if (!buttonSocketEmit) {
+  console.error('Missing socket emit button');
+}
+buttonSocketEmit.addEventListener('click', async () => {
+  const channel    = document.getElementById('socket_emit_channel').value;
+  const rawMessage = document.getElementById('socket_emit_message').value;
+
+  console.log(rawMessage);
+  const message = JSON.parse(rawMessage);
+
+  await socketEmit({ channel, ...message });
+});
