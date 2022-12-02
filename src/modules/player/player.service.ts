@@ -33,7 +33,6 @@ export class PlayerService {
     }
   
     let playerHasCard = false;
-    let playerCardIndex = null;
     for (const [index, playerCard] of playerCards.entries()) {
       const sameColor = Boolean(playerCard.color) ? playerCard.color === playCardDTO.card.color : true;
       const sameValue = playerCard.value === playCardDTO.card.value;
