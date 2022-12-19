@@ -5,10 +5,10 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { MAX_PLAYERS } from 'env-vars';
 
 // Room
-import { RoomRepository } from 'modules/room/room.repository';
 import { CreateRoomDTO } from 'modules/room/dto/create-room.dto';
 import { JoinRoomDTO } from 'modules/room/dto/join-room.dto';
 import { RoomEntity } from 'modules/room/room.entity';
+import { RoomRepository } from 'modules/room/room.repository';
 
 // Match
 import { MATCH_STATUS } from 'modules/match/match.enum';
@@ -17,6 +17,7 @@ import { MatchRepository } from 'modules/match/match.repository';
 // Player
 import { PlayerEntity } from 'modules/player/player.entity';
 import { PlayerService } from 'modules/player/player.service';
+import { randomNumber } from 'src/utils/number';
 
 @Injectable()
 export class RoomService {
@@ -28,17 +29,22 @@ export class RoomService {
   
   /**
    * Create room by CreateRoomDTO
-   * @param {CreateRoomDTO} roomName
+   * @param {CreateRoomDTO} createRoomDTO
    */
   public async createRoom(createRoomDTO: CreateRoomDTO): Promise<void> {
-    const name = createRoomDTO.roomName;
+    let roomName = null;
+    let roomNameUnique = false;
     
-    const roomExists = await this.roomRepository.getRoom(name);
-    if (roomExists) {
-      throw new BadRequestException(`Room ${name} already exists`);
+    while (!roomNameUnique) {
+      roomName = randomNumber(0, 999999).toString();
+      
+      const hasRoom = await this.roomRepository.getRoomByName(roomName);
+      if (!hasRoom) {
+        roomNameUnique = true;
+      }
     }
     
-    const createRoom = RoomEntity.create(createRoomDTO.roomName);
+    const createRoom = RoomEntity.create(roomName);
     const createPlayer = PlayerEntity.createFromCreateRoomDTO(createRoomDTO);
   
     createRoom.addPlayer(createPlayer);
@@ -53,7 +59,7 @@ export class RoomService {
    * @param {JoinRoomDTO} joinRoomDTO
    */
   public async joinRoom(joinRoomDTO: JoinRoomDTO): Promise<void> {
-    const room = await this.roomRepository.getRoom(joinRoomDTO.roomName);
+    const room = await this.roomRepository.getRoomByName(joinRoomDTO.roomName);
     if (!room) {
       throw new BadRequestException(`Room ${joinRoomDTO.roomName} not exists`);
     }

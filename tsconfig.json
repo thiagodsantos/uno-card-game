@@ -18,6 +18,7 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
+      "src/*": ["./*"],
       "events/*": ["events/*"],
       "modules/*": ["modules/*"]
     }

@@ -1,8 +1,8 @@
 import { CardType } from 'modules/match/match.types';
 
 export interface DataRoomType {
-  room: {
-    name: string;
+  room?: {
+    id: string;
   }
 }
 

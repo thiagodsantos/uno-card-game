@@ -16,9 +16,9 @@ export class RoomRepository {
     }
   }
   
-  public async getRoom(roomName: string): Promise<RoomEntity | null> {
+  public async getRoomByName(name: string): Promise<RoomEntity | null> {
     try {
-      const room: RoomEntity = await this.cacheManager.get(ROOM_PREFIX + roomName);
+      const room: RoomEntity = await this.cacheManager.get(ROOM_PREFIX + name);
       if (!room) {
         return null;
       }

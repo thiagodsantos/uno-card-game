@@ -15,7 +15,7 @@ export class PlayCardDTO {
   static fromPlayerMessageDTO(playerMessageDTO: PlayerMessageDTO) {
     return new PlayCardDTO({
       card: playerMessageDTO.data.card,
-      roomName: playerMessageDTO.data.room.name,
+      roomName: playerMessageDTO.data.room.id,
       playerName: playerMessageDTO.data.player.name
     });
   }

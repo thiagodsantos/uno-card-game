@@ -13,7 +13,7 @@ export class JoinRoomDTO {
   
   static fromRoomMessageDTO(roomMessage: RoomMessageDTO) {
     return new JoinRoomDTO({
-      roomName: roomMessage.data.room.name,
+      roomName: roomMessage.data.room.id,
       playerName: roomMessage.data.player.name,
       socketId: roomMessage.socketId
     });

@@ -38,7 +38,7 @@ export class MatchService {
       throw new BadRequestException(`Match in room ${startMatchDTO.roomName} already exists`);
     }
     
-    const room = await this.roomRepository.getRoom(startMatchDTO.roomName);
+    const room = await this.roomRepository.getRoomByName(startMatchDTO.roomName);
     if (!room) {
       throw new BadRequestException(`Room ${startMatchDTO.roomName} not exists`);
     }

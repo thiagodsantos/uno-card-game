@@ -9,7 +9,7 @@ export class StartMatchDTO {
   
   static fromMatchMessageDTO(matchMessageDTO: MatchMessageDTO) {
     return new StartMatchDTO({
-      roomName: matchMessageDTO.data.room.name,
+      roomName: matchMessageDTO.data.room.id,
     });
   }
 }
