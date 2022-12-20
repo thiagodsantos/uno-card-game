@@ -1,6 +1,10 @@
 // GENERAL
+import * as process from 'process';
+
 export const CORS_ORIGIN = process.env.CORS_ORIGIN ?? '*';
 export const SOCKET_PORT = parseInt(process.env.SOCKET_PORT ?? '8003');
+export const GRAPHQL_DEBUG = Boolean(process.env.GRAPHQL_DEBUG ?? false);
+export const GRAPHQL_PLAYGROUND = Boolean(process.env.GRAPHQL_PLAYGROUND ?? false);
 
 // REDIS
 export const REDIS_HOST = process.env.REDIS_HOST ?? 'localhost';

@@ -27,6 +27,10 @@ export class RoomService {
     private readonly playerService: PlayerService
   ) {}
   
+  public async getRoom(name: string): Promise<RoomEntity> {
+    return await this.roomRepository.getRoomByName(name);
+  }
+  
   /**
    * Create room by CreateRoomDTO
    * @param {CreateRoomDTO} createRoomDTO

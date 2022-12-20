@@ -7,10 +7,12 @@ import { PlayerService } from 'modules/player/player.service';
 import { MatchService } from 'modules/match/match.service';
 import { PlayerRepository } from 'modules/player/player.repository';
 import { MatchRepository } from 'modules/match/match.repository';
+import { RoomResolver } from 'modules/room/room.resolver';
 
 @Module({
   imports: [redis],
   providers: [
+    RoomResolver,
     RoomGateway,
     RoomService,
     RoomRepository,

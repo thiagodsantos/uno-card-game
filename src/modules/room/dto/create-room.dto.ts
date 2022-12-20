@@ -1,4 +1,5 @@
 import { RoomMessageDTO } from 'modules/room/dto/room-message.dto';
+import { RoomArgs } from 'modules/room/room.args';
 
 export class CreateRoomDTO {
   readonly playerName: string;
@@ -13,6 +14,13 @@ export class CreateRoomDTO {
     return new CreateRoomDTO({
       playerName: roomMessage.data.player.name,
       socketId: roomMessage.socketId
+    });
+  }
+  
+  static fromRoomArgs(roomArgs: RoomArgs) {
+    return new CreateRoomDTO({
+      playerName: roomArgs.player.name,
+      socketId: roomArgs.player.socketId
     });
   }
 }
